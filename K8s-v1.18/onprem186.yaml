@@ -1,0 +1,56 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-token
+  token: abcdef.0123456789abcdef
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+localAPIEndpoint:
+  advertiseAddress: 192.168.7.140
+  bindPort: 6443
+nodeRegistration:
+  criSocket: /var/run/dockershim.sock
+  name: scale-cp
+  kubeletExtraArgs:
+    "feature-gates": "EphemeralContainers=true"
+  taints:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  timeoutForControlPlane: 4m0s
+  extraArgs:
+    "service-account-issuer": "kubernetes.default.svc"
+    "service-account-signing-key-file": "/etc/kubernetes/pki/sa.key"
+    "feature-gates": "EphemeralContainers=true"
+scheduler:
+  extraArgs:
+    "feature-gates": "EphemeralContainers=true"
+controllerManager:
+  extraArgs:
+    "feature-gates": "EphemeralContainers=true"
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
+dns:
+  type: CoreDNS
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: k8s.gcr.io
+kubernetesVersion: v1.18.6
+networking:
+  dnsDomain: cluster.local
+  serviceSubnet: 10.96.0.0/12
+scheduler: {}
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+maxPods: 100
+---

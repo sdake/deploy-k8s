@@ -1,0 +1,41 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+  - name: Resetting Kubernetes
+    command: kubeadm reset --skip-phases preflight,update-cluster-status,remove-etcd-member
+
+  - name: Reset etcd state
+    command: rm -rf /var/lib/etcd
+
+  - name: Resetting cni state
+    command: rm -rf /etc/cni/net.d
+
+  - name: Flushing iptables rules
+    command: iptables -F
+
+  - name: Flushing iptables chains
+    command: iptables -X
+   
+  - name: Flushing iptables counters
+    command: iptables -Z
+   
+  - name: Flushing all nat rules
+    command: iptables -t nat -F
+
+  - name: Flushing all nat chains
+    command: iptables -t nat -X
+
+  - name: Flushing all mangle rules
+    command: iptables -t mangle -F
+
+  - name: Flushing all mangle chains
+    command: iptables -t mangle -X
+
+  - name: Flushing all raw rules
+    command: iptables -t raw -F
+
+  - name: Flushing all raw chains
+    command: iptables -t raw -X

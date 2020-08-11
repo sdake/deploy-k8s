@@ -1,0 +1,19 @@
+[cp_node]
+scale-cp ansible_host=192.168.7.140
+
+[worker_nodes]
+scale-01 ansible_host=192.168.7.141
+scale-02 ansible_host=192.168.7.142
+scale-03 ansible_host=192.168.7.143
+scale-04 ansible_host=192.168.7.144
+scale-05 ansible_host=192.168.7.145
+scale-06 ansible_host=192.168.7.146
+scale-07 ansible_host=192.168.7.147
+scale-08 ansible_host=192.168.7.148
+scale-09 ansible_host=192.168.7.149
+scale-10 ansible_host=192.168.7.150
+scale-11 ansible_host=192.168.7.151
+scale-12 ansible_host=192.168.7.152
+scale-13 ansible_host=192.168.7.153
+scale-14 ansible_host=192.168.7.154
+scale-15 ansible_host=192.168.7.155
