@@ -1,4 +1,4 @@
-[cp_node]
+[cp_nodes]
 scale-cp ansible_host=192.168.7.140
 
 [worker_nodes]

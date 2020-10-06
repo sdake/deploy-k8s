@@ -1,8 +1,8 @@
 ---
-- hosts: cp_node
+- hosts: cp_nodes
   tasks:
   - name: Initialize the Kubernetes cluster using kubeadm
-    command: sudo kubeadm init --config=$HOME/onprem186.yaml
+    command: sudo kubeadm init --config=$HOME/onprem192.yaml
 
   - name: Initialize the Kubernetes cluster using kubeadm
     command: mkdir -p $HOME/.kube
@@ -10,7 +10,6 @@
   - name: Copy admin.conf to .kube/config
     command: sudo -H cp /etc/kubernetes/admin.conf $HOME/.kube/config
 
-    # this chown is completely wrong. If you use this code, please change 1000:1000 to your uid/gid.
   - name: Chown the file to the uid and gid of this user
     command: sudo -H chown 1000:1000 $HOME/.kube/config
 
@@ -22,7 +21,6 @@
     become: false
     command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
 
-    # you should customize metallb-configmap-083 to your local environment
   - name: Install MetalLB Load Balancer Configuration
     become: false
     command: kubectl apply -f $HOME/metallb-configmap-083.yaml
@@ -40,7 +38,7 @@
   become: true
   tasks:
   - name: Record the dummy host join command
-    shell: echo -n "{{ hostvars['DUMMY_HOST']['JOINVAR'] }}"
+    shell: echo -n "{{ hostvars['DUMMY_HOST']['JOINVAR'] }} --cri-socket=/run/containerd/containerd.sock"
     register: join
 
   - name: Join the node to cluster

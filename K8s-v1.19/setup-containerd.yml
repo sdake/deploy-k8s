@@ -1,0 +1,35 @@
+---
+- hosts: all
+  tasks:
+          # If docker is installed, uncomment this and run it to REMOVE docker on
+          # your inventory hosts
+          #  - name: prune
+          #    command: docker system prune -f -a
+          #  - name: remove
+          #    command: sudo systemd stop docker
+          #  - name: remove
+          #    command: sudo apt -y remove docker-ce-cli
+          #  - name: remove
+          #    command: sudo apt -y remove containerd.io
+  - name: Update the debian package cache
+    command: sudo apt -y update
+  - name: Upgrade all nodes to the latest packaging
+    command: sudo apt -y upgrade
+  - name: Install containerd
+    command: sudo apt -y install containerd
+  - name: Create containerd dir
+    command: sudo mkdir -p /etc/containerd
+  - name:  Create  the default configuration for containerd
+    command: sudo bash -c "containerd config default > /etc/containerd/config.toml"
+  - name:  restart containerd
+    command: sudo systemctl restart containerd
+  - name: Add runtime args in kubelet configuraiton
+    become: true
+    lineinfile:
+      dest: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
+      line: "Environment=\"KUBELET_EXTRA_ARGS= --runtime-cgroups=/system.slice/containerd.service --container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock\""
+      insertafter: '\[Service\]'
+  - name: Start containerd
+    command: sudo systemctl start containerd
+  - name: Pull the pause container (no idea why this is needed, it may not be)
+    command: sudo ctr images pull k8s.gcr.io/pause:3.2
