@@ -1,0 +1,140 @@
+- name: Add users
+  hosts: all
+  become: True
+  tasks:
+    - group:
+        name: ansible
+        gid: 2000
+        state: present
+
+    - user:
+        name: ansible
+        comment: "Ansible"
+        uid: 2000
+        group: ansible
+        groups: sudo
+    
+    - name: Set authorized key took from file
+      authorized_key:
+        user: ansible
+        state: present
+        key: "{{ lookup('file', '/home/sdake/.ssh/id_ed25519.pub') }}"
+    
+    - name: Set authorized key took from file
+      authorized_key:
+        user: sdake
+        state: present
+        key: "{{ lookup('file', '/home/sdake/.ssh/id_ed25519.pub') }}"
+
+    - name: Allow 'sudo' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^# %sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
+    - name: Remove resolv.conf
+      file:
+        state: absent
+        path: /etc/resolv.conf
+
+    - name: Replace resolv.conf with my resolver cache
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 192.168.33.1
+
+          #    - name: Update the cache and upgrade systems
+          #      register: updatesys
+          #      apt:
+          #        name: "*"
+          #        state: latest
+          #        update_cache: yes
+
+    - name: Install HWE kernel
+      apt:
+        name: linux-generic-hwe-20.04
+        state: present
+
+    - name: Install containerd
+      apt:
+        name: containerd
+        state: present
+
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Install ca-certificates
+      apt:
+        name: ca-certificates
+        state: present
+
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+
+    - name: Install Kubernetes signing key
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: add Kubernetes apt repository
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+        update_cache: yes
+
+    - name: Install kubeadm
+      apt:
+        name: kubeadm
+        state: present
+
+    - name: Install kubelet
+      apt:
+        name: kubelet
+        state: present
+
+    - name: Install kubectl
+      apt:
+        name: kubectl
+        state: present
+
+    - name: Disable swap permanently
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
+    - name: Turn swap off
+      shell: |
+        swapoff -a
+
+    - name: Install br netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: 1
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    - sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: 1
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    - sysctl:
+        name: net.ipv4.ip_forward
+        value: 1
+        sysctl_set: yes
+        state: present
+        reload: yes

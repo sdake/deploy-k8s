@@ -1,0 +1,13 @@
+[cp_nodes]
+cilium-01 ansible_host=192.168.33.179
+
+[worker_nodes]
+cilium-02 ansible_host=192.168.33.181
+cilium-03 ansible_host=192.168.33.243
+cilium-04 ansible_host=192.168.33.240
+cilium-05 ansible_host=192.168.33.223
+cilium-06 ansible_host=192.168.33.201
+cilium-07 ansible_host=192.168.33.202
+cilium-08 ansible_host=192.168.33.241
+cilium-09 ansible_host=192.168.33.244
+cilium-10 ansible_host=192.168.33.185

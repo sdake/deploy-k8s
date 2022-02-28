@@ -5,7 +5,7 @@
   tasks:
 
   - name: Resetting Kubernetes
-    command: kubeadm reset --skip-phases preflight,update-cluster-status,remove-etcd-member
+    command: kubeadm reset -f
 
   - name: Reset etcd state
     command: rm -rf /var/lib/etcd
